@@ -3,447 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام إدارة المحاضرات المتزامن</title>
+    <title>نظام إدارة المحاضرات الذكي</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --primary: #667eea;
-            --primary-dark: #5568d3;
+            --primary: #5c6bc0; /* اللون الأزرق/البنفسجي الأساسي */
+            --primary-hover: #3f51b5;
+            --bg-body: #f4f5f9;
+            --bg-container: #ffffff;
+            --text-dark: #374151;
+            --text-muted: #6b7280;
+            --border-light: #e5e7eb;
+            
             --success: #10b981;
-            --warning: #f59e0b;
             --danger: #ef4444;
-            --info: #3b82f6;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --bg-light: #f9fafb;
-            --card-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --warning: #f59e0b;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
 
         body {
-            font-family: 'Cairo', sans-serif;
-            background: var(--bg-gradient);
-            padding: 20px;
+            background-color: var(--bg-body);
+            padding: 30px 15px;
+            color: var(--text-dark);
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1100px;
             margin: auto;
-            background: white;
+            background: var(--bg-container);
             padding: 30px;
             border-radius: 20px;
-            box-shadow: var(--card-shadow);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        h1 {
-            color: var(--primary);
-            font-size: 2.5rem;
+        /* --- تصميم الهيدر (العنوان) --- */
+        .header { text-align: center; margin-bottom: 30px; }
+        .header-title-box {
+            background-color: var(--primary);
+            color: white;
+            display: inline-block;
+            padding: 10px 40px;
+            border-radius: 8px;
+            font-size: 2.2rem;
             font-weight: 800;
-            margin-bottom: 0.5rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(92, 107, 192, 0.3);
         }
+        .subtitle { color: var(--text-muted); font-size: 1.1rem; font-weight: 600; }
 
-        .subtitle {
-            color: var(--text-light);
-            font-size: 1.1rem;
-        }
-
+        /* شارة التزامن */
         .sync-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 5px 15px; border-radius: 50px; font-size: 0.85rem; font-weight: 700;
+            margin-top: 15px;
+            background: #d1fae5; color: #059669;
+        }
+        .sync-badge.syncing { background: #fef3c7; color: #d97706; }
+        .sync-badge.error { background: #fee2e2; color: #dc2626; }
+
+        /* --- شريط التحكم --- */
+        .control-bar {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-light);
+            padding: 15px 25px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .login-section { display: flex; gap: 10px; align-items: center; }
+        
+        input[type="password"] {
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            outline: none;
+            transition: 0.3s;
+        }
+        input[type="password"]:focus { border-color: var(--primary); }
+
+        button {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.3s;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 15px;
-            background: #d1fae5;
-            color: #059669;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            margin-top: 10px;
         }
-
-        .sync-badge.syncing {
-            background: #fef3c7;
-            color: #d97706;
-        }
-
-        .control-bar {
-            background: linear-gradient(135deg, var(--bg-light) 0%, #e5e7eb 100%);
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 15px;
-            border: 2px solid #e5e7eb;
-        }
-
-        .login-section {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
 
         .status-badge {
             padding: 8px 20px;
             border-radius: 50px;
             font-weight: 700;
             font-size: 0.9rem;
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 8px;
         }
+        .status-locked { background: #fee2e2; color: #dc2626; }
+        .status-unlocked { background: #d1fae5; color: #059669; }
 
-        .status-locked {
-            background: #fee2e2;
-            color: #dc2626;
-        }
-
-        .status-unlocked {
-            background: #d1fae5;
-            color: #059669;
-        }
-
-        input[type="password"] {
-            padding: 10px 15px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            width: 150px;
-            text-align: center;
-            font-family: 'Cairo', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        input[type="password"]:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        button {
-            padding: 10px 25px;
-            border: none;
-            border-radius: 10px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 700;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #dc2626;
-            transform: translateY(-2px);
-        }
-
-        .btn-add {
-            background: var(--info);
-            color: white;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-        }
-
-        .btn-add:hover {
-            background: #2563eb;
-        }
-
-        .btn-delete {
-            background: var(--danger);
-            color: white;
-            padding: 4px 10px;
-            font-size: 0.8rem;
-        }
-
+        /* --- تصميم الجدول --- */
         .table-wrapper {
-            overflow-x: auto;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        }
-
-        table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
+            border: 1.5px solid var(--primary);
+            border-radius: 12px;
             overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
-
-        th, td {
-            padding: 18px;
-            text-align: center;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        
         th {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background-color: var(--primary);
             color: white;
+            padding: 15px;
             font-weight: 700;
-            font-size: 1rem;
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            font-size: 1.05rem;
+            border-left: 1px solid rgba(255,255,255,0.2);
         }
-
-        th:first-child {
-            border-top-right-radius: 15px;
+        th:last-child { border-left: none; }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-light);
+            border-left: 1px solid var(--border-light);
+            vertical-align: middle;
         }
-
-        th:last-child {
-            border-top-left-radius: 15px;
-        }
+        td:last-child { border-left: none; }
+        tr:last-child td { border-bottom: none; }
 
         .day-cell {
-            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            background-color: #f8fafc;
+            color: var(--primary);
             font-weight: 800;
             font-size: 1.1rem;
-            color: var(--primary);
-            vertical-align: middle;
-            border-left: 4px solid var(--primary);
+            width: 12%;
         }
 
-        tr:hover td {
-            background-color: #f9fafb;
-        }
-
-        .editable {
-            position: relative;
-            cursor: text;
-            transition: all 0.3s ease;
-        }
-
-        .editable:focus {
-            outline: 2px solid var(--primary);
-            outline-offset: -2px;
-            background: #fef3c7 !important;
-        }
-
-        .subject-cell {
-            font-weight: 700;
-            color: var(--text-dark);
-        }
-
+        .subject-cell { display: flex; flex-direction: column; align-items: center; gap: 5px; justify-content: center; border-left: none !important;}
+        .subject-text { font-weight: 700; color: #1f2937; }
+        
+        /* الشارات الصغيرة (محاضرة، سكشن، عملي) */
         .type-badge {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            margin-top: 5px;
+            padding: 2px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
+        .type-lecture { background: #e0e7ff; color: #4338ca; }
+        .type-section { background: #fce7f3; color: #be185d; }
+        .type-practical { background: #d1fae5; color: #059669; }
 
-        .type-lecture {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-
-        .type-section {
-            background: #fce7f3;
-            color: #be185d;
-        }
-
-        .type-practical {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
+        /* --- القوائم المنسدلة (الحالة) --- */
         select {
-            padding: 8px 12px;
-            border: 2px solid #e5e7eb;
+            appearance: none;
+            padding: 8px 35px 8px 15px;
             border-radius: 8px;
-            font-family: 'Cairo', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        select:focus {
             outline: none;
-            border-color: var(--primary);
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 10px center;
+            background-size: 1em;
+            text-align: center;
+            transition: 0.3s;
         }
+        select:disabled { cursor: not-allowed; opacity: 0.8; }
 
-        select:disabled {
-            cursor: not-allowed;
-            opacity: 0.6;
-        }
+        .status-not-started { border: 1px solid #d1d5db; color: #9ca3af; background-color: #f9fafb; }
+        .status-arrived { border: 1px solid #fcd34d; color: #d97706; background-color: #fffbeb; }
+        .status-running { border: 1px solid #34d399; color: #059669; background-color: #ecfdf5; }
+        .status-ended { border: 1px solid #9ca3af; color: #4b5563; background-color: #f3f4f6; }
 
-        .status-not-started {
-            color: var(--text-light);
-        }
-
-        .status-arrived {
-            color: var(--warning);
-            font-weight: 700;
-        }
-
-        .status-running {
-            color: var(--success);
-            font-weight: 700;
-            animation: pulse 2s infinite;
-        }
-
-        .status-ended {
-            color: var(--text-light);
-            text-decoration: line-through;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .add-row-cell {
-            padding: 10px !important;
-        }
+        /* وضع التعديل */
+        .editable { cursor: text; transition: 0.3s; padding: 5px; border-radius: 5px; }
+        .editable:focus { background: #fffbeb; outline: 1px dashed var(--warning); }
+        .btn-delete { background: var(--danger); color: white; border: none; padding: 4px 8px; border-radius: 5px; font-size: 0.7rem; margin-bottom: 5px; cursor: pointer; }
 
         .notification {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            z-index: 1000;
-            opacity: 0;
-            transition: all 0.3s ease;
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            padding: 15px 30px; border-radius: 10px; font-weight: 700; color: white;
+            z-index: 1000; opacity: 0; transition: 0.4s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
-
-        .notification.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .notification-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .notification-error {
-            background: var(--danger);
-            color: white;
-        }
+        .notification.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .notification-success { background: var(--success); }
+        .notification-error { background: var(--danger); }
 
         .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8);
+            display: flex; align-items: center; justify-content: center; z-index: 9999;
         }
-
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255,255,255,0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .setup-instructions {
-            background: #fef3c7;
-            border: 2px solid #f59e0b;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .setup-instructions h3 {
-            color: #d97706;
-            margin-bottom: 10px;
-        }
-
-        .setup-instructions ol {
-            margin-right: 20px;
-            line-height: 1.8;
-        }
-
-        .setup-instructions code {
-            background: #fff;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #dc2626;
-        }
+        .loading-spinner { width: 40px; height: 40px; border: 4px solid var(--border-light); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 1.8rem;
-            }
-
-            .control-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            th, td {
-                padding: 12px 8px;
-                font-size: 0.85rem;
-            }
+            .header-title-box { font-size: 1.5rem; padding: 10px 20px; }
+            .control-bar { flex-direction: column; align-items: stretch; }
+            .login-section { justify-content: center; }
         }
     </style>
 </head>
@@ -455,47 +228,23 @@
 
 <div class="container">
     <div class="header">
-        <h1>📚 نظام إدارة المحاضرات المتزامن</h1>
-        <p class="subtitle">جميع التعديلات تُحفظ تلقائياً ويراها الجميع فوراً</p>
-        <span class="sync-badge" id="syncBadge">
-            ✅ متزامن مع السحابة
-        </span>
-    </div>
-
-    <div class="setup-instructions" id="setupInstructions">
-        <h3>⚠️ يجب إعداد Firebase أولاً:</h3>
-        <ol>
-            <li>اذهب إلى <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a></li>
-            <li>أنشئ مشروع جديد (أو استخدم مشروع موجود)</li>
-            <li>فعّل <strong>Realtime Database</strong> في وضع الاختبار</li>
-            <li>انسخ إعدادات Firebase من <strong>Project Settings → General → Your apps</strong></li>
-            <li>الصق الإعدادات في السطر 420 من الكود (ابحث عن <code>firebaseConfig</code>)</li>
-            <li>احفظ وأعد تحميل الصفحة</li>
-        </ol>
-        <button class="btn-primary" onclick="document.getElementById('setupInstructions').style.display='none'">
-            فهمت، دعني أبدأ
-        </button>
+        <div class="header-title-box">نظام إدارة المحاضرات الذكي 📚</div>
+        <p class="subtitle">متابعة وإدارة جدول المحاضرات بكل سهولة</p>
+        <div class="sync-badge" id="syncBadge">🔄 جاري التحميل...</div>
     </div>
 
     <div class="control-bar">
+        <span class="status-badge status-locked" id="statusBadge">🔒 وضع القراءة فقط</span>
+
         <div class="login-section" id="loginSection">
+            <button class="btn-primary" onclick="unlockAdmin()">دخول المدير 🔑</button>
             <input type="password" id="passCode" placeholder="أدخل الرمز السري">
-            <button class="btn-primary" onclick="unlockAdmin()">
-                🔓 دخول المدير
-            </button>
         </div>
 
-        <div id="adminControls" style="display: none;">
-            <div class="action-buttons">
-                <button class="btn-danger" onclick="lockAdmin()">
-                    🔒 إنهاء وقفل
-                </button>
-            </div>
+        <div id="adminControls" style="display: none; display: flex; gap: 10px;">
+            <button class="btn-success" onclick="saveToSheet()">💾 حفظ التعديلات</button>
+            <button class="btn-danger" onclick="lockAdmin()">🔒 خروج</button>
         </div>
-
-        <span class="status-badge status-locked" id="statusBadge">
-            🔒 وضع القراءة فقط
-        </span>
     </div>
 
     <div class="table-wrapper">
@@ -516,128 +265,75 @@
 
 <div class="notification" id="notification"></div>
 
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
 <script>
-// ⚠️ استبدل هذا بإعدادات Firebase الخاصة بك
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
-
-// تهيئة Firebase
-let db = null;
-let scheduleRef = null;
-
-try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    scheduleRef = db.ref('schedule');
-    console.log('✅ Firebase initialized successfully');
-    document.getElementById('setupInstructions').style.display = 'none';
-} catch (error) {
-    console.error('❌ Firebase initialization error:', error);
-    showNotification('يرجى إعداد Firebase أولاً (راجع التعليمات)', 'error');
-}
-
-// البيانات الأساسية
-const initialData = [
-    { day: "الجمعة", sessions: [
-        { time: "9 - 10.30", subject: "أساسيات", place: "مدرج 1", type: "محاضرة", status: "لم تبدأ" },
-        { time: "10.30 - 12", subject: "جودة", place: "معمل ج", type: "سكشن", status: "لم تبدأ" },
-        { time: "12 - 2.15", subject: "أنظمة", place: "ورشة السيارات", type: "عملي", status: "لم تبدأ" }
-    ]},
-    { day: "السبت", sessions: [
-        { time: "9 - 10.30", subject: "تقارير", place: "قاعة 5", type: "محاضرة", status: "لم تبدأ" },
-        { time: "10.30 - 11.15", subject: "جودة", place: "قاعة 5", type: "سكشن", status: "لم تبدأ" },
-        { time: "1.30 - 2.15", subject: "تك معادن", place: "مدرج ج", type: "محاضرة", status: "لم تبدأ" },
-        { time: "2.15 - 4.30", subject: "أساسيات", place: "معمل", type: "عملي", status: "لم تبدأ" }
-    ]},
-    { day: "الأحد", sessions: [
-        { time: "9 - 10", subject: "تك مركبات هجين", place: "معمل الهجين", type: "سكشن", status: "لم تبدأ" },
-        { time: "11.15 - 12", subject: "تكنولوجيا المركبات", place: "مدرج 2", type: "محاضرة", status: "لم تبدأ" },
-        { time: "12 - 2.15", subject: "أساسيات محرك", place: "ورشة 1", type: "سكشن", status: "لم تبدأ" },
-        { time: "2.15 - 4.30", subject: "تكنولوجيا معادن", place: "معمل معادن", type: "سكشن", status: "لم تبدأ" }
-    ]}
-];
+// --- إعدادات Google Sheets ---
+const SHEET_ID = '1UPuMmJqmX5ffPye3LA6DgJKTR435HgrCKrbsOenP-_0';
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv`;
 
 let scheduleData = [];
 let isEditMode = false;
-let isUpdating = false;
 
-// تهيئة البيانات من Firebase
-function initializeData() {
-    if (!scheduleRef) {
-        scheduleData = initialData;
-        renderTable();
-        return;
-    }
-
+// 1. تحميل البيانات من Google Sheets
+async function loadFromSheet() {
     showLoading(true);
-    
-    scheduleRef.once('value', (snapshot) => {
-        if (snapshot.exists()) {
-            scheduleData = snapshot.val();
-        } else {
-            scheduleData = initialData;
-            scheduleRef.set(scheduleData);
-        }
+    updateSyncBadge('loading');
+    try {
+        const response = await fetch(SHEET_CSV_URL);
+        const csvText = await response.text();
+        scheduleData = parseCSVToSchedule(csvText);
         renderTable();
+        updateSyncBadge('success');
+    } catch (error) {
+        console.error('Error loading:', error);
+        updateSyncBadge('error');
+        loadBackupData();
+    } finally {
         showLoading(false);
-        
-        // الاستماع للتغييرات المباشرة
-        scheduleRef.on('value', (snapshot) => {
-            if (!isUpdating && snapshot.exists()) {
-                scheduleData = snapshot.val();
-                renderTable();
-                updateSyncBadge(false);
-            }
-        });
-    });
+    }
 }
 
-// حفظ البيانات في Firebase
-function saveToFirebase() {
-    if (!scheduleRef) {
-        showNotification('Firebase غير مفعّل', 'error');
-        return;
-    }
-
-    isUpdating = true;
-    updateSyncBadge(true);
+// 2. تحويل CSV إلى بيانات
+function parseCSVToSchedule(csvText) {
+    const lines = csvText.split('\n').filter(line => line.trim());
+    const data = [];
+    let currentDay = null;
     
-    scheduleRef.set(scheduleData)
-        .then(() => {
-            isUpdating = false;
-            updateSyncBadge(false);
-        })
-        .catch((error) => {
-            console.error('Error saving:', error);
-            showNotification('خطأ في الحفظ', 'error');
-            isUpdating = false;
-        });
-}
-
-// تحديث شارة المزامنة
-function updateSyncBadge(syncing) {
-    const badge = document.getElementById('syncBadge');
-    if (syncing) {
-        badge.className = 'sync-badge syncing';
-        badge.innerHTML = '🔄 جاري الحفظ...';
-    } else {
-        badge.className = 'sync-badge';
-        badge.innerHTML = '✅ متزامن مع السحابة';
+    for (let i = 1; i < lines.length; i++) { // تخطي العنوان
+        const columns = parseCSVLine(lines[i].trim());
+        if (!columns[1] && !columns[2]) continue; // سطر فارغ
+        
+        if (columns[0]) {
+            currentDay = { day: columns[0], sessions: [] };
+            data.push(currentDay);
+        }
+        
+        if (currentDay && columns[1]) {
+            currentDay.sessions.push({
+                time: columns[1] || '',
+                subject: columns[2] || '',
+                type: columns[3] || 'محاضرة',
+                place: columns[4] || '',
+                status: columns[5] || 'لم تبدأ'
+            });
+        }
     }
+    return data.length > 0 ? data : getBackupData();
 }
 
-// رسم الجدول
+function parseCSVLine(line) {
+    const result = [];
+    let current = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') inQuotes = !inQuotes;
+        else if (char === ',' && !inQuotes) { result.push(current.trim()); current = ''; }
+        else current += char;
+    }
+    result.push(current.trim());
+    return result;
+}
+
+// 3. رسم الجدول (تم التعديل ليطابق تصميم الصورة)
 function renderTable() {
     const tbody = document.getElementById('tableBody');
     tbody.innerHTML = '';
@@ -646,14 +342,16 @@ function renderTable() {
         dayData.sessions.forEach((session, sessionIndex) => {
             const tr = document.createElement('tr');
             
+            // 1. اليوم
             if (sessionIndex === 0) {
                 const dayCell = document.createElement('td');
                 dayCell.className = 'day-cell';
-                dayCell.rowSpan = dayData.sessions.length + (isEditMode ? 1 : 0);
+                dayCell.rowSpan = dayData.sessions.length;
                 dayCell.textContent = dayData.day;
                 tr.appendChild(dayCell);
             }
 
+            // 2. الوقت
             const timeCell = document.createElement('td');
             timeCell.className = isEditMode ? 'editable' : '';
             timeCell.contentEditable = isEditMode;
@@ -661,25 +359,31 @@ function renderTable() {
             timeCell.dataset.dayIndex = dayIndex;
             timeCell.dataset.sessionIndex = sessionIndex;
             timeCell.dataset.field = 'time';
-            if (isEditMode) {
-                timeCell.addEventListener('blur', saveEditedCell);
-            }
+            if(isEditMode) timeCell.addEventListener('blur', saveEditedCell);
             tr.appendChild(timeCell);
 
+            // 3. المادة (تم دمج النوع معها لتطابق الصورة)
             const subjectCell = document.createElement('td');
             subjectCell.className = 'subject-cell';
-            subjectCell.innerHTML = `
-                <div class="editable" contenteditable="${isEditMode}" 
-                     data-day-index="${dayIndex}" data-session-index="${sessionIndex}" data-field="subject">
-                    ${session.subject}
-                </div>
-                <div class="type-badge type-${getTypeClass(session.type)}">${session.type}</div>
-            `;
-            if (isEditMode) {
-                subjectCell.querySelector('.editable').addEventListener('blur', saveEditedCell);
-            }
+            
+            const subjText = document.createElement('div');
+            subjText.className = isEditMode ? 'editable subject-text' : 'subject-text';
+            subjText.contentEditable = isEditMode;
+            subjText.textContent = session.subject;
+            subjText.dataset.dayIndex = dayIndex;
+            subjText.dataset.sessionIndex = sessionIndex;
+            subjText.dataset.field = 'subject';
+            if(isEditMode) subjText.addEventListener('blur', saveEditedCell);
+            
+            const typeBadge = document.createElement('div');
+            typeBadge.className = `type-badge type-${getTypeClass(session.type)}`;
+            typeBadge.textContent = session.type;
+
+            subjectCell.appendChild(subjText);
+            subjectCell.appendChild(typeBadge);
             tr.appendChild(subjectCell);
 
+            // 4. المكان
             const placeCell = document.createElement('td');
             placeCell.className = isEditMode ? 'editable' : '';
             placeCell.contentEditable = isEditMode;
@@ -687,17 +391,21 @@ function renderTable() {
             placeCell.dataset.dayIndex = dayIndex;
             placeCell.dataset.sessionIndex = sessionIndex;
             placeCell.dataset.field = 'place';
-            if (isEditMode) {
-                placeCell.addEventListener('blur', saveEditedCell);
-            }
+            if(isEditMode) placeCell.addEventListener('blur', saveEditedCell);
             tr.appendChild(placeCell);
 
+            // 5. حالة المحاضرة
             const statusCell = document.createElement('td');
             if (isEditMode) {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'btn-delete';
-                deleteBtn.innerHTML = '🗑️ حذف';
-                deleteBtn.onclick = () => deleteSession(dayIndex, sessionIndex);
+                deleteBtn.innerHTML = 'حذف المحاضرة 🗑️';
+                deleteBtn.onclick = () => {
+                    if (confirm('تأكيد الحذف؟')) {
+                        scheduleData[dayIndex].sessions.splice(sessionIndex, 1);
+                        renderTable();
+                    }
+                };
                 statusCell.appendChild(deleteBtn);
                 statusCell.appendChild(document.createElement('br'));
             }
@@ -722,112 +430,71 @@ function renderTable() {
 
             tbody.appendChild(tr);
         });
-
-        if (isEditMode) {
-            const addRow = document.createElement('tr');
-            addRow.innerHTML = `
-                <td colspan="4" class="add-row-cell" style="text-align: center; background: #f9fafb;">
-                    <button class="btn-add" onclick="addNewSession(${dayIndex})">
-                        ➕ إضافة محاضرة جديدة ليوم ${dayData.day}
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(addRow);
-        }
     });
 }
 
+// تحديثات التعديل
 function saveEditedCell(e) {
-    const dayIndex = parseInt(e.target.dataset.dayIndex);
-    const sessionIndex = parseInt(e.target.dataset.sessionIndex);
-    const field = e.target.dataset.field;
-    const newValue = e.target.textContent.trim();
-    
-    scheduleData[dayIndex].sessions[sessionIndex][field] = newValue;
-    saveToFirebase();
+    const dIdx = parseInt(e.target.dataset.dayIndex);
+    const sIdx = parseInt(e.target.dataset.sessionIndex);
+    scheduleData[dIdx].sessions[sIdx][e.target.dataset.field] = e.target.textContent.trim();
+    localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
 }
 
 function updateStatus(e) {
-    const dayIndex = parseInt(e.target.dataset.dayIndex);
-    const sessionIndex = parseInt(e.target.dataset.sessionIndex);
+    const dIdx = parseInt(e.target.dataset.dayIndex);
+    const sIdx = parseInt(e.target.dataset.sessionIndex);
     const newStatus = e.target.value;
-    
-    scheduleData[dayIndex].sessions[sessionIndex].status = newStatus;
+    scheduleData[dIdx].sessions[sIdx].status = newStatus;
     e.target.className = `status-${getStatusClass(newStatus)}`;
-    saveToFirebase();
+    localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
 }
 
-function addNewSession(dayIndex) {
-    const newSession = {
-        time: "الوقت",
-        subject: "اسم المادة",
-        place: "المكان",
-        type: "محاضرة",
-        status: "لم تبدأ"
-    };
-    
-    scheduleData[dayIndex].sessions.push(newSession);
-    renderTable();
-    saveToFirebase();
-    showNotification('تمت إضافة محاضرة جديدة!', 'success');
-}
-
-function deleteSession(dayIndex, sessionIndex) {
-    if (confirm('هل أنت متأكد من حذف هذه المحاضرة؟')) {
-        scheduleData[dayIndex].sessions.splice(sessionIndex, 1);
-        renderTable();
-        saveToFirebase();
-        showNotification('تم حذف المحاضرة', 'success');
-    }
-}
-
+// نظام الدخول
 function unlockAdmin() {
-    const pass = document.getElementById('passCode').value;
-    if (pass === '2003') {
+    if (document.getElementById('passCode').value === '2003') {
         isEditMode = true;
         document.getElementById('loginSection').style.display = 'none';
-        document.getElementById('adminControls').style.display = 'block';
-        document.getElementById('statusBadge').className = 'status-badge status-unlocked';
-        document.getElementById('statusBadge').innerHTML = '✍️ وضع التعديل النشط';
+        document.getElementById('adminControls').style.display = 'flex';
+        const badge = document.getElementById('statusBadge');
+        badge.className = 'status-badge status-unlocked';
+        badge.innerHTML = '✍️ وضع التعديل (نشط)';
         renderTable();
-        showNotification('مرحباً بك في وضع المدير!', 'success');
-    } else {
-        showNotification('الرمز السري خاطئ!', 'error');
-    }
+        showNotification('تم فتح وضع التعديل بنجاح', 'success');
+    } else { showNotification('الرمز السري غير صحيح', 'error'); }
 }
 
 function lockAdmin() {
     isEditMode = false;
     document.getElementById('loginSection').style.display = 'flex';
     document.getElementById('adminControls').style.display = 'none';
-    document.getElementById('statusBadge').className = 'status-badge status-locked';
-    document.getElementById('statusBadge').innerHTML = '🔒 وضع القراءة فقط';
+    const badge = document.getElementById('statusBadge');
+    badge.className = 'status-badge status-locked';
+    badge.innerHTML = '🔒 وضع القراءة فقط';
     document.getElementById('passCode').value = '';
     renderTable();
-    showNotification('تم إقفال وضع التعديل', 'success');
 }
 
-function showNotification(message, type) {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.className = `notification notification-${type} show`;
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
+async function saveToSheet() {
+    localStorage.setItem('scheduleData', JSON.stringify(scheduleData));
+    showNotification('تم حفظ التعديلات! (لتحديث جوجل شيت يجب تعديله من المصدر)', 'success');
 }
 
-function showLoading(show) {
-    document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+// دوال مساعدة للتصميم
+function updateSyncBadge(status) {
+    const badge = document.getElementById('syncBadge');
+    if (status === 'loading') { badge.className = 'sync-badge syncing'; badge.innerHTML = '🔄 جاري التحميل...'; }
+    else if (status === 'success') { badge.className = 'sync-badge'; badge.innerHTML = '✅ متزامن مع Google Sheets'; }
+    else if (status === 'error') { badge.className = 'sync-badge error'; badge.innerHTML = '⚠️ خطأ في التزامن'; }
 }
 
-function getTypeClass(type) {
-    if (type.includes('محاضرة')) return 'lecture';
-    if (type.includes('سكشن')) return 'section';
-    if (type.includes('عملي')) return 'practical';
-    return 'lecture';
+function showNotification(msg, type) {
+    const n = document.getElementById('notification');
+    n.textContent = msg; n.className = `notification notification-${type} show`;
+    setTimeout(() => n.classList.remove('show'), 3000);
 }
-
+function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
+function getTypeClass(type) { if (type.includes('سكشن')) return 'section'; if (type.includes('عملي')) return 'practical'; return 'lecture'; }
 function getStatusClass(status) {
     switch(status) {
         case 'لم تبدأ': return 'not-started';
@@ -837,19 +504,14 @@ function getStatusClass(status) {
         default: return 'not-started';
     }
 }
-
 function getStatusIcon(status) {
-    switch(status) {
-        case 'لم تبدأ': return '⏳';
-        case 'الدكتور وصل': return '👨‍🏫';
-        case 'بدأت الآن': return '▶️';
-        case 'انتهت': return '✅';
-        default: return '';
-    }
+    switch(status) { case 'لم تبدأ': return '⏳'; case 'الدكتور وصل': return '👨‍🏫'; case 'بدأت الآن': return '▶️'; case 'انتهت': return '✅'; default: return ''; }
 }
+function getBackupData() { return JSON.parse(localStorage.getItem('scheduleData')) || []; }
+function loadBackupData() { scheduleData = getBackupData(); renderTable(); }
 
-// بدء التطبيق
-initializeData();
+loadFromSheet();
+setInterval(() => { if (!isEditMode) loadFromSheet(); }, 30000);
 </script>
 
 </body>
